@@ -1,0 +1,30 @@
+RunLater
+========
+
+Simply a blatant port of Merb's run_later method, taking advantage of Rails 2.2 thread safety.
+Runs longer running tasks outside the current request thread, so that the request will return
+the content to the user without blocking. Once the request is done, the worker will run the 
+specified block in a separate thread.
+
+It's merely a proof-of-concept for now, and my entry into the thread-safe Rails world, so I can't
+guarantee anything about the code.
+
+Example
+=======
+
+class AccountController < ApplicationController
+  def signup
+    @user = User.new(params[:user])
+    if @user.save
+      run_later do
+        AccountMailer.deliver_signup(@user)
+      end
+    end
+  end
+end
+
+Thanks to Yehuda Katz for showing off run_later at the Merb BoF session at RailsConf Europe 2008.
+
+Ported to Rails by Mathias Meyer (http://paperplanes.de).
+
+Released under the MIT license
