@@ -1,8 +1,9 @@
 module RunLater
   class Worker
-
-    def initialize
-      @logger = RAILS_DEFAULT_LOGGER
+    attr_accessor :logger
+    
+    def initialize(logger = RAILS_DEFAULT_LOGGER)
+      @logger = logger
       @thread = Thread.new {
         loop { 
           process_queue
@@ -11,9 +12,14 @@ module RunLater
     end
     
     def process_queue
-      while block = RunLater.queue.pop
-        Thread.pass
-        block.call
+      begin
+        while block = RunLater.queue.pop
+          Thread.pass
+          block.call
+        end
+      rescue Exception => e
+        logger.error("Worker thread crashed, retrying.")
+        retry
       end
     end
   end

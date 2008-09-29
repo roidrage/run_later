@@ -1,18 +1,7 @@
 require 'run_later/worker'
+require 'run_later/instance_methods'
 
-module RunLater
-  @@queue = ::Queue.new
-  
-  def self.queue
-    @@queue
-  end
-  
-  def run_later(&block)
-    @@queue << block
-  end
-end
-
-ActionController::Base.send(:include, RunLater)
-ActiveRecord::Base.send(:include, RunLater)
+ActionController::Base.send(:include, RunLater::InstanceMethods)
+ActiveRecord::Base.send(:include, RunLater::InstanceMethods)
 
 RunLater::Worker.new
