@@ -9,6 +9,10 @@ specified block in a separate thread.
 It's merely a proof-of-concept for now, and my entry into the thread-safe Rails world, so I can't
 guarantee anything about the code.
 
+Should an error occur inside the block handed to run_later, the block will be discarded, and the
+worker thread will just continue its work without looking back. If you're executing important code
+inside the block, ensure that it does proper error handling.
+ 
 Example
 =======
 
