@@ -11,6 +11,7 @@ class WorkerTest < Test::Unit::TestCase
   context "A worker instance" do
     setup do
       @logger = stub(:logger)
+      @logger.stubs(:error)
       @worker = RunLater::Worker.new(@logger)
     end
     
@@ -27,14 +28,19 @@ class WorkerTest < Test::Unit::TestCase
         run_later do
           "awesome!"
         end
-      end
-      
-      should "continue working through the queue" do
-        @logger.expects(:error)
+        
         queue = stub(:queue)
         queue.stubs(:pop).raises(Exception).then.returns nil
         RunLater.stubs(:queue).returns(queue)
+      end
+      
+      should "continue working through the queue" do
         assert_nothing_raised {@worker.process_queue}
+      end
+      
+      should "log an error" do
+        @logger.expects(:error)
+        @worker.process_queue
       end
     end
   end
