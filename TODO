@@ -1,2 +1,2 @@
+* Fix run_later in Passenger. Works with RailsSpawnMethod conservative, but not with smart.
 * Support for scheduling jobs
-* Exception handling in processing thread
