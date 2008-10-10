@@ -1,9 +1,12 @@
+require 'timeout'
+
 module RunLater
   class Worker
-    attr_accessor :logger, :thread
+    attr_accessor :thread
+    cattr_accessor :logger
     
     def initialize(logger = RAILS_DEFAULT_LOGGER)
-      @logger = logger
+      self.logger = logger
       @thread = Thread.new {
         loop {
           process_queue
@@ -16,8 +19,16 @@ module RunLater
     end
 
     def self.cleanup
-      loop do
-        break unless instance.thread[:running]
+      begin
+        Timeout::timeout 10 do
+          loop do
+            break unless instance.thread[:running]
+          end
+        end
+      rescue Timeout::Error
+        logger.warn("Worker thread takes too long and willed be killed.")
+        instance.thread.kill
+        @worker = RunLater::Worker.new
       end
     end
     
