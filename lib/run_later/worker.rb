@@ -14,6 +14,12 @@ module RunLater
     def self.instance
       @worker ||= RunLater::Worker.new
     end
+
+    def self.cleanup
+      loop do
+        break unless instance.thread[:running]
+      end
+    end
     
     def process_queue
       begin

@@ -9,9 +9,7 @@ RunLater::Worker.instance
 
 class ActionController::Dispatcher
   def cleanup_application_with_thread_check
-    loop do
-      break unless RunLater::Worker.instance.thread[:running]
-    end
+    RunLater::Worker.cleanup
     cleanup_application_without_thread_check
   end
 
