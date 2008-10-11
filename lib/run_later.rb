@@ -5,9 +5,13 @@ ActionController::Base.send(:include, RunLater::InstanceMethods)
 
 require 'dispatcher' unless defined?(::Dispatcher)
 
-RunLater::Worker.instance
-
 class ActionController::Dispatcher
+  before_dispatch :check_worker_thread
+  
+  def check_worker_thread
+    @__runlater ||= RunLater::Worker.instance
+  end
+  
   def cleanup_application_with_thread_check
     RunLater::Worker.cleanup
     cleanup_application_without_thread_check

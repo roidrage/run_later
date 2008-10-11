@@ -23,11 +23,14 @@ module RunLater
         Timeout::timeout 10 do
           loop do
             break unless instance.thread[:running]
+            # When run in Passenger, explicitly pass control to another thread
+            # Which will in return hand over control to the worker thread.
+            Thread.pass if defined?(::Passenger)
           end
         end
       rescue Timeout::Error
-        logger.warn("Worker thread takes too long and willed be killed.")
-        instance.thread.kill
+        logger.warn("Worker thread takes too long and will be killed.")
+        instance.thread.kill!
         @worker = RunLater::Worker.new
       end
     end
