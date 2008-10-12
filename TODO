@@ -1,3 +1,1 @@
-* Fix run_later in Passenger. Works with RailsSpawnMethod conservative, but not with smart.
 * Support for scheduling jobs
-* Fix cleanup_application patch to not wait forever for the worker thread, instead kill/interrupt it after a certain amount of time.

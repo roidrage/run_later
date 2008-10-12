@@ -24,12 +24,15 @@ module RunLater
           loop do
             break unless instance.thread[:running]
             # When run in Passenger, explicitly pass control to another thread
-            # Which will in return hand over control to the worker thread.
+            # which will in return hand over control to the worker thread.
+            # However, it doesn't work in Passenger 2.1.0, since it removes
+            # all its classes before handing the request over to Rails.
             Thread.pass if defined?(::Passenger)
           end
         end
       rescue Timeout::Error
         logger.warn("Worker thread takes too long and will be killed.")
+        logger.flush
         instance.thread.kill!
         @worker = RunLater::Worker.new
       end
@@ -42,9 +45,11 @@ module RunLater
           Thread.current[:running] = true
           block.call
           Thread.current[:running] = false
+          logger.flush
         end
       rescue Exception => e
         logger.error("Worker thread crashed, retrying. Error was: #{e}")
+        logger.flush
         Thread.current[:running] = false
         retry
       end
