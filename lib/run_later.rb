@@ -2,6 +2,9 @@ require 'run_later/worker'
 require 'run_later/instance_methods'
 
 ActionController::Base.send(:include, RunLater::InstanceMethods)
+# Make run_later available both as instance and class methods
+ActiveRecord::Base.send(:include, RunLater::InstanceMethods)
+ActiveRecord::Base.extend(RunLater::InstanceMethods)
 
 require 'dispatcher' unless defined?(::Dispatcher)
 
