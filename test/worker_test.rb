@@ -1,9 +1,6 @@
-require 'rubygems'
-require 'test/unit'
-require 'shoulda'
+require File.dirname(__FILE__) + '/test_helper'
 require 'run_later/worker'
 require 'run_later/instance_methods'
-require 'mocha'
 
 class WorkerTest < Test::Unit::TestCase
   include RunLater::InstanceMethods
@@ -12,6 +9,7 @@ class WorkerTest < Test::Unit::TestCase
     setup do
       @logger = stub(:logger)
       @logger.stubs(:error)
+      @logger.stubs(:flush)
       @worker = RunLater::Worker.new(@logger)
     end
     
