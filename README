@@ -13,6 +13,13 @@ Should an error occur inside the block handed to run_later, the block will be di
 worker thread will just continue its work without looking back. If you're executing important code
 inside the block, ensure that it does proper error handling.
  
+Testing
+=======
+
+For testing you can explicitly disable threading of your blocks. Set RunLater.run_now to true in
+your config/environments/test.rb and your blocks will be executed within the test case for your
+testing pleasure.
+
 Example
 =======
 

@@ -22,6 +22,28 @@ class RunLaterTest < Test::Unit::TestCase
       
         assert_equal 1, RunLater.queue.size
       end
+      
+      context "with run_now set" do
+        setup do
+          RunLater.run_now = true
+        end
+
+        teardown do
+          RunLater.run_now = false
+        end
+
+        should "call the block immediately" do
+          ran_block = false
+          blk = proc {ran_block = true}
+          run_later &blk
+          assert ran_block
+        end
+
+        should "not fetch the worker instance" do
+          RunLater::Worker.expects(:instance).never
+          run_later { 'sup!'}
+        end
+      end
     end
   end
 end
