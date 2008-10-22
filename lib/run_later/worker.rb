@@ -8,6 +8,11 @@ module RunLater
     def initialize(logger = RAILS_DEFAULT_LOGGER)
       self.logger = logger
       @thread = Thread.new {
+        trap :INT do
+          RunLater::Worker.shutdown
+          exit
+        end
+
         loop {
           process_queue
         }
@@ -16,6 +21,18 @@ module RunLater
     
     def self.instance
       @worker ||= RunLater::Worker.new
+    end
+
+    def self.shutdown
+      begin
+        Timeout::timeout 10 do
+          loop {break unless instance.thread[:running]}
+        end
+      rescue Timeout::Error
+        logger.error("Worker thread timed out. Forcing shutdown.")
+      ensure
+        instance.thread.kill!
+      end
     end
 
     def self.cleanup
