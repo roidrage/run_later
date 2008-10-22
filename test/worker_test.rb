@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/test_helper'
 require 'run_later/worker'
 require 'run_later/instance_methods'
+require 'timeout'
 
 class WorkerTest < Test::Unit::TestCase
   include RunLater::InstanceMethods
@@ -39,6 +40,18 @@ class WorkerTest < Test::Unit::TestCase
       should "log an error" do
         @logger.expects(:error)
         @worker.process_queue
+      end
+    end
+
+    context "when shutting down the worker" do
+      should "kill the thread" do
+        RunLater::Worker.instance.thread.expects(:kill!)
+        RunLater::Worker.shutdown
+      end
+      
+      should "not re-raise a timeout error" do
+        RunLater::Worker.expects(:loop).yields.raises(Timeout::Error)
+        assert_nothing_raised {RunLater::Worker.shutdown}
       end
     end
   end
