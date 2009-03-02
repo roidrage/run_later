@@ -34,6 +34,19 @@ class AccountController < ApplicationController
   end
 end
 
+Known Issues
+============
+
+When using Passenger (http://modrails.com) and you're running tasks that take a little longer
+you will experience a delay in development mode. This is because after each request, Rails
+cleans up its environment and unloads all classes. run_later will defer the cleanup until
+the worker thread is done or a timeout has occured (default is 10 seconds). This is true
+for at least Passenger 2.0.6, but not in 2.0.3 and 2.1.1, and it will also happen when
+using Mongrel, but not in production mode.
+
+License, Props
+==============
+
 Thanks to Yehuda Katz for showing off run_later at the Merb BoF session at RailsConf Europe 2008.
 
 Ported to Rails by Mathias Meyer (http://paperplanes.de).

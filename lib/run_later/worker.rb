@@ -44,7 +44,7 @@ module RunLater
             # which will in return hand over control to the worker thread.
             # However, it doesn't work in Passenger 2.1.0, since it removes
             # all its classes before handing the request over to Rails.
-            Thread.pass if defined?(::Passenger)
+            Thread.pass if defined?(::Passenger) or defined?(::PhusionPassenger)
           end
         end
       rescue Timeout::Error
