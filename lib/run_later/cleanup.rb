@@ -1,6 +1,10 @@
 require 'dispatcher' unless defined?(::Dispatcher)
 
-if Rails::VERSION::MAJOR >= 2 and Rails::VERSION::MINOR >= 3
+# Cleanup code. Will only be used when cache_classes is disabled, so usually
+# in development and testing mode. Ensures that the worker thread is properly
+# disposed of before Rails' class unloading kicks in.
+
+if defined?(ActionController::MiddlewareStack::Middleware)
   # Rack-supported version for Rails >= 2.3.x
   class RunLater::Cleanup
     def initialize(app)
