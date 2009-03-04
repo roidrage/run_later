@@ -1,17 +1,16 @@
 RunLater
 ========
 
-Simply a blatant port of Merb's run_later method, taking advantage of Rails 2.2 thread safety.
+Simply a blatant port of Merb's run_later method, taking advantage of Rails 2.2 thread safety. Neat as it is, it also works in Rails 2.3.
 Runs longer running tasks outside the current request thread, so that the request will return
 the content to the user without blocking. Once the request is done, the worker will run the 
 specified block in a separate thread.
 
-It's merely a proof-of-concept for now, and my entry into the thread-safe Rails world, so I can't
-guarantee anything about the code.
-
 Should an error occur inside the block handed to run_later, the block will be discarded, and the
 worker thread will just continue its work without looking back. If you're executing important code
 inside the block, ensure that it does proper error handling.
+
+Be warned though, not to run overly long tasks using run_later, especially when you need reliable queue processing. Use a custom daemon or delayed_job in this case. run_later will usually run happily and merrily, but it's best suited for tasks that just could potentially block the request, like sending mail or firing off requests to external web services.
  
 Testing
 =======
@@ -41,8 +40,10 @@ When using Passenger (http://modrails.com) and you're running tasks that take a 
 you will experience a delay in development mode. This is because after each request, Rails
 cleans up its environment and unloads all classes. run_later will defer the cleanup until
 the worker thread is done or a timeout has occured (default is 10 seconds). This is true
-for at least Passenger 2.0.6, but not in 2.0.3 and 2.1.1, and it will also happen when
-using Mongrel, but not in production mode.
+for at least Passenger 2.0.6, but not in 2.0.3 and 2.1.1 (though with Rails 2.3 I experienced it again), and it will also happen when
+using Mongrel, but not in production mode. Whatever combination you're using be prepared not to run very long tasks on your development machine.
+
+This is because Rails unloads all classes after a request when class caching is disabled. run_later defers the unloading until the worker thread supposably has finished its tasks, or kills the thread after a timeout of ten seconds. In production mode you won't experience this issue unless of course, you like disabling class caching in production mode.
 
 License, Props
 ==============
